@@ -8,19 +8,38 @@ use Term::ANSIColor;
 use POSIX qw(pause);
 
 use constant POMO_TIME => 25 * 60;
+use constant BREAK_TIME => 5 * 60;
+use constant BELL => chr(7);
+
 my $elapsed = 0;
-my $start = clock();
+my $infinite = shift;
 
 clear_screen();
+pomo_loop();
 
-# thanks to https://www.febo.com/pages/perl_alarm_code/
-$SIG{ALRM} = sub { print $start - clock(), "\n" };
-setitimer(ITIMER_REAL, 1, 1);
+sub pomo_loop {
+    do {
+        timer(POMO_TIME, "Pomo");
+        print BELL;
+        timer(BREAK_TIME, "Break");
+        print BELL;
+    } while ($infinite);
+}
 
-while ($elapsed < POMO_TIME) {
-    pause;
-    clear_screen();
-    $elapsed++;
+sub timer {
+    my $time = shift;
+    my $message = shift;
+
+    # thanks to https://www.febo.com/pages/perl_alarm_code/
+    # and to http://www.perlmonks.org/?node_id=101511
+    $SIG{ALRM} = sub { printf "$message time remaining: %d:%d \n", (gmtime $time - $elapsed)[1, 0] };
+    setitimer(ITIMER_REAL, 1, 1);
+
+    while ($elapsed < $time) {
+        pause;
+        clear_screen();
+        $elapsed++;
+    }
 }
 
 # thanks to http://stackoverflow.com/questions/197933/whats-the-best-way-to-clear-the-screen-in-perl
