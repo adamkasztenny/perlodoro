@@ -53,6 +53,5 @@ sub timer {
 
 # thanks to http://stackoverflow.com/questions/197933/whats-the-best-way-to-clear-the-screen-in-perl
 sub clear_screen {
-    print "\033[2J";
-    print "\033[0;0H";
+    print ("\033[2J", "\033[0;0H");
 }
