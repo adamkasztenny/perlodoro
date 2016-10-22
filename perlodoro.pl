@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Time::HiRes qw (setitimer ITIMER_REAL clock);
+use Time::HiRes qw (setitimer ITIMER_REAL);
 use Term::ANSIColor;
 use POSIX qw(pause);
 
@@ -31,9 +31,14 @@ sub timer {
     my $message = shift;
     my $colour = shift;
 
+    my $show_time = sub {
+        print color($colour); 
+        printf "$message time remaining: %02d:%02d \n", (gmtime $time - $elapsed)[1, 0];
+    };
+
     # thanks to https://www.febo.com/pages/perl_alarm_code/
     # and to http://www.perlmonks.org/?node_id=101511
-    $SIG{ALRM} = sub { print color($colour); printf "$message time remaining: %02d:%02d \n", (gmtime $time - $elapsed)[1, 0] };
+    $SIG{ALRM} = \&$show_time;
     setitimer(ITIMER_REAL, 1, 1);
 
     while ($elapsed < $time) {
