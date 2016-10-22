@@ -19,9 +19,9 @@ pomo_loop();
 
 sub pomo_loop {
     do {
-        timer(POMO_TIME, "Pomo");
+        timer(POMO_TIME, "Pomo", "red");
         print BELL;
-        timer(BREAK_TIME, "Break");
+        timer(BREAK_TIME, "Break", "green");
         print BELL;
     } while ($infinite);
 }
@@ -29,10 +29,11 @@ sub pomo_loop {
 sub timer {
     my $time = shift;
     my $message = shift;
+    my $colour = shift;
 
     # thanks to https://www.febo.com/pages/perl_alarm_code/
     # and to http://www.perlmonks.org/?node_id=101511
-    $SIG{ALRM} = sub { printf "$message time remaining: %02d:%02d \n", (gmtime $time - $elapsed)[1, 0] };
+    $SIG{ALRM} = sub { print color($colour); printf "$message time remaining: %02d:%02d \n", (gmtime $time - $elapsed)[1, 0] };
     setitimer(ITIMER_REAL, 1, 1);
 
     while ($elapsed < $time) {
@@ -42,6 +43,7 @@ sub timer {
     }
 
     $elapsed = 0;
+    print color("reset");
 }
 
 # thanks to http://stackoverflow.com/questions/197933/whats-the-best-way-to-clear-the-screen-in-perl
